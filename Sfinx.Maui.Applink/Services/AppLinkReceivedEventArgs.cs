@@ -1,4 +1,4 @@
-namespace Sfinx.Maui.Applink.Services.Sfinx.ClientApp.Services.DeepLink;
+namespace Sfinx.Maui.Applink.Services;
 
 public class AppLinkReceivedEventArgs : EventArgs
 {

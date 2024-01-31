@@ -1,6 +1,6 @@
-@page "/LockPage"
-<h3>LockPage</h3>
+@page "/LockPage/{LockId}"
+<h3>Lock details for lock @LockId</h3>
 
 @code {
-    
+    [Parameter] public string LockId { get; set; }
 }

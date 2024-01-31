@@ -1,0 +1,47 @@
+﻿@using Sfinx.Maui.Applink.Services
+@implements IDisposable
+@inject DeeplinkAppService deeplinkAppService 
+<Router AppAssembly="@typeof(Main).Assembly">
+    <Found Context="routeData">
+        <RouteView RouteData="@routeData" DefaultLayout="@typeof(MainLayout)"/>
+        <FocusOnNavigate RouteData="@routeData" Selector="h1"/>
+    </Found>
+    <NotFound>
+        <LayoutView Layout="@typeof(MainLayout)">
+            <p role="alert">Sorry, there's nothing at this address.</p>
+        </LayoutView>
+    </NotFound>
+</Router>
+@code
+{
+    [Inject] public NavigationManager NavigationManager { get; set; }
+
+    protected override void OnInitialized()
+    {
+        if (!DeeplinkAppService.IsRegistered)
+        {
+            Console.WriteLine("on init");
+            deeplinkAppService.AppLinkReceived += AppServices_AppLinkReceived;
+            deeplinkAppService.RegisterListener();
+            if (!string.IsNullOrEmpty(deeplinkAppService.LastAppLink))
+            {
+                AppServices_AppLinkReceived(null, new() { Data = deeplinkAppService.LastAppLink });
+            }
+        }
+
+        base.OnInitialized();
+    }
+
+    private void AppServices_AppLinkReceived(object? sender, AppLinkReceivedEventArgs e)
+    {
+        var url = e.Data;
+        deeplinkAppService.ResetLastAppLink();
+        NavigationManager.NavigateTo(e.Data, forceLoad: true);
+    }
+
+    void IDisposable.Dispose()
+    {
+        deeplinkAppService.AppLinkReceived -= AppServices_AppLinkReceived;
+        DeeplinkAppService.IsRegistered = false;
+    }
+}
