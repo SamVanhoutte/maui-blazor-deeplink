@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.Logging;
 using Sfinx.Maui.Applink.Data;
+using Sfinx.Maui.Applink.Services;
 
 namespace Sfinx.Maui.Applink;
 
@@ -13,6 +14,7 @@ public static class MauiProgram
             .ConfigureFonts(fonts => { fonts.AddFont("OpenSans-Regular.ttf", "OpenSansRegular"); });
 
         builder.Services.AddMauiBlazorWebView();
+        builder.Services.AddSingleton<DeeplinkAppService>();
 
 #if DEBUG
         builder.Services.AddBlazorWebViewDeveloperTools();
