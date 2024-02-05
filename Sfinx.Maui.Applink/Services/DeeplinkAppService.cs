@@ -1,7 +1,10 @@
+using Microsoft.AspNetCore.Components;
+
 namespace Sfinx.Maui.Applink.Services;
 
 public class DeeplinkAppService
 {
+    [Inject] private NavigationManager NavigationManager { get; set; }
     public event EventHandler<AppLinkReceivedEventArgs>? AppLinkReceived;
     public string? LastAppLink { get; private set; }
 
@@ -9,7 +12,8 @@ public class DeeplinkAppService
     {
         LastAppLink = data;
 
-        AppLinkReceived?.Invoke(this, new() { Data = data });
+        NavigationManager.NavigateTo(data);
+        //AppLinkReceived?.Invoke(this, new() { Data = data });
     }
 
     public void ResetLastAppLink()
