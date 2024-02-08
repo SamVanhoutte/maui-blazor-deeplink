@@ -1,6 +1,6 @@
 ﻿@using Sfinx.Maui.Applink.Services
+@using System.Diagnostics
 @implements IDisposable
-@inject DeeplinkAppService deeplinkAppService 
 <Router AppAssembly="@typeof(Main).Assembly">
     <Found Context="routeData">
         <RouteView RouteData="@routeData" DefaultLayout="@typeof(MainLayout)"/>
@@ -18,30 +18,21 @@
 
     protected override void OnInitialized()
     {
-        if (!DeeplinkAppService.IsRegistered)
-        {
-            Console.WriteLine("on init");
-            deeplinkAppService.AppLinkReceived += AppServices_AppLinkReceived;
-            deeplinkAppService.RegisterListener();
-            if (!string.IsNullOrEmpty(deeplinkAppService.LastAppLink))
-            {
-                AppServices_AppLinkReceived(null, new() { Data = deeplinkAppService.LastAppLink });
-            }
-        }
 
         base.OnInitialized();
     }
 
     private void AppServices_AppLinkReceived(object? sender, AppLinkReceivedEventArgs e)
     {
+        Trace.WriteLine($"Will navigate now! {e.Data}");
         var url = e.Data;
-        deeplinkAppService.ResetLastAppLink();
+        // deeplinkAppService.ResetLastAppLink();
         NavigationManager.NavigateTo(e.Data, forceLoad: true);
     }
 
     void IDisposable.Dispose()
     {
-        deeplinkAppService.AppLinkReceived -= AppServices_AppLinkReceived;
-        DeeplinkAppService.IsRegistered = false;
+        // deeplinkAppService.AppLinkReceived -= AppServices_AppLinkReceived;
+        // DeeplinkAppService.IsRegistered = false;
     }
 }
