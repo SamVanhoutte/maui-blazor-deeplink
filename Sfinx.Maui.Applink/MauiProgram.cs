@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.Logging;
+using Microsoft.Maui.LifecycleEvents;
 using Sfinx.Maui.Applink.Data;
 using Sfinx.Maui.Applink.Services;
 
@@ -11,10 +12,47 @@ public static class MauiProgram
         var builder = MauiApp.CreateBuilder();
         builder
             .UseMauiApp<App>()
-            .ConfigureFonts(fonts => { fonts.AddFont("OpenSans-Regular.ttf", "OpenSansRegular"); });
+            .ConfigureFonts(fonts => { fonts.AddFont("OpenSans-Regular.ttf", "OpenSansRegular"); })
+            .ConfigureLifecycleEvents(lifecycle =>
+            {
+#if IOS || MACCATALYST
+					lifecycle.AddiOS(ios =>
+					{
+						ios.FinishedLaunching((app, data)
+							=> HandleAppLink(app.UserActivity));
+
+						ios.ContinueUserActivity((app, userActivity, handler)
+							=> HandleAppLink(userActivity));
+
+						if (OperatingSystem.IsIOSVersionAtLeast(13) || OperatingSystem.IsMacCatalystVersionAtLeast(13))
+						{
+							ios.SceneWillConnect((scene, sceneSession, sceneConnectionOptions)
+								=> HandleAppLink(sceneConnectionOptions.UserActivities.ToArray()
+									.FirstOrDefault(a => a.ActivityType == Foundation.NSUserActivityType.BrowsingWeb)));
+
+							ios.SceneContinueUserActivity((scene, userActivity)
+								=> HandleAppLink(userActivity));
+						}
+					});
+#elif ANDROID
+                lifecycle.AddAndroid(android => {
+                    android.OnCreate((activity, bundle) =>
+                    {
+                        var action = activity.Intent?.Action;
+                        var data = activity.Intent?.Data?.ToString();
+
+                        if (action == Android.Content.Intent.ActionView && data is not null)
+                        {
+                            //activity.Finish();
+                            System.Threading.Tasks.Task.Run(() => HandleAppLink(data));
+                        }
+                    });
+                });
+#endif
+            });
 
         builder.Services.AddMauiBlazorWebView();
-        builder.Services.AddSingleton<DeeplinkAppService>();
+        //builder.Services.AddSingleton<DeeplinkAppService>();
 
 #if DEBUG
         builder.Services.AddBlazorWebViewDeveloperTools();
@@ -24,5 +62,13 @@ public static class MauiProgram
         builder.Services.AddSingleton<WeatherForecastService>();
 
         return builder.Build();
+    }
+    
+    static void HandleAppLink(string url)
+    {
+	    if (Uri.TryCreate(url, UriKind.RelativeOrAbsolute, out var uri))
+	    {
+		    App.Current?.SendOnAppLinkRequestReceived(uri);
+	    }
     }
 }

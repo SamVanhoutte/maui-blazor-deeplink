@@ -16,14 +16,14 @@
 
     protected override void OnInitialized()
     {
-        System.Diagnostics.Trace.WriteLine($"On init");
-        var requestedUrl = Microsoft.Maui.Storage.Preferences.Get("requestedUrl", null);
-        System.Diagnostics.Trace.WriteLine($"On init: {requestedUrl}");
-        if (!string.IsNullOrEmpty(requestedUrl))
-        {
-            NavigationManager.NavigateTo(requestedUrl);
-        }
-        base.OnInitialized();
+        // System.Diagnostics.Trace.WriteLine($"On init");
+        // var requestedUrl = Microsoft.Maui.Storage.Preferences.Get("requestedUrl", null);
+        // System.Diagnostics.Trace.WriteLine($"On init: {requestedUrl}");
+        // if (!string.IsNullOrEmpty(requestedUrl))
+        // {
+        //     NavigationManager.NavigateTo(requestedUrl);
+        // }
+        // base.OnInitialized();
         // if (!DeeplinkAppService.IsRegistered)
         // {
         //     Console.WriteLine("on init");
@@ -38,22 +38,22 @@
         base.OnInitialized();
     }
 
-    protected override Task OnAfterRenderAsync(bool firstRender)
-    {
-        System.Diagnostics.Trace.WriteLine($"On after render");
-        var requestedUrl = Microsoft.Maui.Storage.Preferences.Get("requestedUrl", null);
-        System.Diagnostics.Trace.WriteLine($"On after render: {requestedUrl}");
-        if (!string.IsNullOrEmpty(requestedUrl))
-        {
-            Preferences.Set("requestedUrl", null);
-            NavigationManager.NavigateTo(requestedUrl);
-            return Task.CompletedTask;
-        }
-        else
-        {
-            return base.OnAfterRenderAsync(firstRender);
-        }
-    }
+    // protected override Task OnAfterRenderAsync(bool firstRender)
+    // {
+    //     System.Diagnostics.Trace.WriteLine($"On after render");
+    //     var requestedUrl = Microsoft.Maui.Storage.Preferences.Get("requestedUrl", null);
+    //     System.Diagnostics.Trace.WriteLine($"On after render: {requestedUrl}");
+    //     if (!string.IsNullOrEmpty(requestedUrl))
+    //     {
+    //         Preferences.Set("requestedUrl", null);
+    //         NavigationManager.NavigateTo(requestedUrl);
+    //         return Task.CompletedTask;
+    //     }
+    //     else
+    //     {
+    //         return base.OnAfterRenderAsync(firstRender);
+    //     }
+    // }
 
     // private void AppServices_AppLinkReceived(object? sender, AppLinkReceivedEventArgs e)
     // {
