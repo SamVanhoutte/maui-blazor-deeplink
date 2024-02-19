@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using System.Diagnostics;
+using Microsoft.Extensions.Logging;
 using Microsoft.Maui.LifecycleEvents;
 using Sfinx.Maui.Applink.Data;
 using Sfinx.Maui.Applink.Services;
@@ -35,16 +36,19 @@ public static class MauiProgram
 						}
 					});
 #elif ANDROID
-                lifecycle.AddAndroid(android => {
+                lifecycle.AddAndroid(android =>
+                {
                     android.OnCreate((activity, bundle) =>
                     {
                         var action = activity.Intent?.Action;
                         var data = activity.Intent?.Data?.ToString();
+                        Trace.WriteLine($"Android create {data}");
 
                         if (action == Android.Content.Intent.ActionView && data is not null)
                         {
+                            Trace.WriteLine($"Handle app link");
                             //activity.Finish();
-                            System.Threading.Tasks.Task.Run(() => HandleAppLink(data));
+                            Task.Run(() => HandleAppLink(data));
                         }
                     });
                 });
@@ -63,12 +67,17 @@ public static class MauiProgram
 
         return builder.Build();
     }
-    
+
     static void HandleAppLink(string url)
     {
-	    if (Uri.TryCreate(url, UriKind.RelativeOrAbsolute, out var uri))
-	    {
-		    App.Current?.SendOnAppLinkRequestReceived(uri);
-	    }
+        Trace.WriteLine($"Handling app link {url}");
+        if (Uri.TryCreate(url, UriKind.RelativeOrAbsolute, out var uri))
+        {
+            Trace.WriteLine($"Data : {uri}");
+            var relativeUrl = url.Replace("sfinx://app/", "");
+            Preferences.Set("requestedUrl", relativeUrl);
+            Trace.WriteLine("Main activity starting");
+            //App.Current?.SendOnAppLinkRequestReceived(uri);
+        }
     }
 }

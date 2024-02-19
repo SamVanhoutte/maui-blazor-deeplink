@@ -1,4 +1,6 @@
-﻿namespace Sfinx.Maui.Applink;
+﻿using System.Diagnostics;
+
+namespace Sfinx.Maui.Applink;
 
 public partial class App : Application
 {
@@ -9,28 +11,19 @@ public partial class App : Application
         //MainPage = new MainPage();
     }
     
-    protected override async void OnAppLinkRequestReceived(Uri uri)
-    {
-        base.OnAppLinkRequestReceived(uri);
-
-        // Show an alert to test the app link worked
-
-        await this.Dispatcher.DispatchAsync(() =>
-        {
-            // At this point Windows collection is empty?!
-            if (Windows.Any())
-            {
-                //Can we navigate here? 
-                this.Windows[0].Page!.DisplayAlert(
-                    $"App Link Opened {Windows.Count}",
-                    uri.ToString(),
-                    "OK");
-                    
-            }
-        });
-
-        Console.WriteLine("APP LINK: " + uri.ToString());
-    }
+    // protected override async void OnAppLinkRequestReceived(Uri uri)
+    // {
+    //     base.OnAppLinkRequestReceived(uri);
+    //
+    //     // Show an alert to test the app link worked
+    //     //         Preferences.Set("requestedUrl", url);
+    //
+    //     Trace.WriteLine("On app link requested pushing modal");
+    //     // await this.Dispatcher.DispatchAsync(() => 
+    //     //     App.Current.MainPage.Navigation.PushModalAsync(new Applink.MainPage()));
+    //
+    //     Console.WriteLine("APP LINK: " + uri.ToString());
+    // }
 
     protected override Window CreateWindow(IActivationState? activationState)
         => new Window(new AppShell());

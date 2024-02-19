@@ -16,26 +16,25 @@
 
     protected override void OnInitialized()
     {
-        // System.Diagnostics.Trace.WriteLine($"On init");
-        // var requestedUrl = Microsoft.Maui.Storage.Preferences.Get("requestedUrl", null);
-        // System.Diagnostics.Trace.WriteLine($"On init: {requestedUrl}");
-        // if (!string.IsNullOrEmpty(requestedUrl))
+        System.Diagnostics.Trace.WriteLine($"On init");
+        // if (Preferences.Get("redirected", false) == true)
         // {
-        //     NavigationManager.NavigateTo(requestedUrl);
+        //     Preferences.Set("redirected", false);
+        //     return;
         // }
-        // base.OnInitialized();
-        // if (!DeeplinkAppService.IsRegistered)
-        // {
-        //     Console.WriteLine("on init");
-        //     deeplinkAppService.AppLinkReceived += AppServices_AppLinkReceived;
-        //     deeplinkAppService.RegisterListener();
-        //     if (!string.IsNullOrEmpty(deeplinkAppService.LastAppLink))
-        //     {
-        //         AppServices_AppLinkReceived(null, new() { Data = deeplinkAppService.LastAppLink });
-        //     }
-        // }
-    
-        base.OnInitialized();
+        var requestedUrl = Microsoft.Maui.Storage.Preferences.Get("requestedUrl", null);
+        System.Diagnostics.Trace.WriteLine($"On init: {requestedUrl}");
+        if (!string.IsNullOrEmpty(requestedUrl))
+        {
+            System.Diagnostics.Trace.WriteLine($"Redirecting to {requestedUrl}");
+            Preferences.Set("requestedUrl", null);
+            // Preferences.Set("redirected", true);
+            NavigationManager.NavigateTo(requestedUrl);
+        }
+        else
+        {
+            //base.OnInitialized();
+        }
     }
 
     // protected override Task OnAfterRenderAsync(bool firstRender)
