@@ -3,6 +3,7 @@ using Android.Content.PM;
 using Android.OS;
 using Android.Content;
 using Sfinx.Maui.Applink.Services;
+using Trace = System.Diagnostics.Trace;
 
 namespace Sfinx.Maui.Applink
 {
@@ -24,47 +25,36 @@ namespace Sfinx.Maui.Applink
     )]
     public class MainActivity : MauiAppCompatActivity
     {
-        private readonly DeeplinkAppService deeplinkService;
-
-        public MainActivity()
+        protected override void OnCreate(Bundle? savedInstanceState)
         {
-            deeplinkService =
-                ServiceHelper.Current
-                    .GetRequiredService<DeeplinkAppService>(); 
-        }
-        
+            Trace.WriteLine("On Create intent");
 
-        protected override void OnCreate(Bundle savedInstanceState)
-        {
             base.OnCreate(savedInstanceState);
-            OnNewIntent(this.Intent);
 
-            // var intent = Intent;
-            // if (intent != null)
-            // {
-            //     if (intent.Action == Intent.ActionView && !string.IsNullOrEmpty(intent.DataString))
-            //     {
-            //         var relativeUri = intent.Data?.Path + "?" + intent.Data?.Query;
-            //         deeplinkService.OnAppLinkReceived(relativeUri);
-            //     }
-            // }
-            //
-            // base.OnCreate(savedInstanceState);
+            HandleIntent(Intent);
         }
 
         protected override void OnNewIntent(Intent intent)
         {
-        
-            var data = intent.DataString;
-        
-            if (intent.Action != Intent.ActionView) return;
-            if (string.IsNullOrWhiteSpace(data)) return;
-        
-            var relativeUri = intent.Data.Path + "?" + intent.Data.Query;
-            deeplinkService.OnAppLinkReceived(relativeUri);
-            
+            Trace.WriteLine("On new intent");
+
             base.OnNewIntent(intent);
 
+            HandleIntent(intent);
+        }
+
+        private void HandleIntent(Intent intent)
+        {
+            if (intent?.Data != null)
+            {
+                Trace.WriteLine($"Data : {intent.DataString}");
+                var data = intent.Data;
+                var url = data.ToString().Replace("sfinx://app/", "");
+                Trace.WriteLine($"Url : {url}");
+                Preferences.Set("requestedUrl", url);
+                Trace.WriteLine("Main activity starting");
+                StartActivity(typeof(MainActivity));
+            }
         }
     }
 }

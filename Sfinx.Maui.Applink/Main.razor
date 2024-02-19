@@ -1,6 +1,4 @@
 ﻿@using Sfinx.Maui.Applink.Services
-@implements IDisposable
-@inject DeeplinkAppService deeplinkAppService 
 <Router AppAssembly="@typeof(Main).Assembly">
     <Found Context="routeData">
         <RouteView RouteData="@routeData" DefaultLayout="@typeof(MainLayout)"/>
@@ -18,30 +16,55 @@
 
     protected override void OnInitialized()
     {
-        if (!DeeplinkAppService.IsRegistered)
+        System.Diagnostics.Trace.WriteLine($"On init");
+        var requestedUrl = Microsoft.Maui.Storage.Preferences.Get("requestedUrl", null);
+        System.Diagnostics.Trace.WriteLine($"On init: {requestedUrl}");
+        if (!string.IsNullOrEmpty(requestedUrl))
         {
-            Console.WriteLine("on init");
-            deeplinkAppService.AppLinkReceived += AppServices_AppLinkReceived;
-            deeplinkAppService.RegisterListener();
-            if (!string.IsNullOrEmpty(deeplinkAppService.LastAppLink))
-            {
-                AppServices_AppLinkReceived(null, new() { Data = deeplinkAppService.LastAppLink });
-            }
+            NavigationManager.NavigateTo(requestedUrl);
         }
-
+        base.OnInitialized();
+        // if (!DeeplinkAppService.IsRegistered)
+        // {
+        //     Console.WriteLine("on init");
+        //     deeplinkAppService.AppLinkReceived += AppServices_AppLinkReceived;
+        //     deeplinkAppService.RegisterListener();
+        //     if (!string.IsNullOrEmpty(deeplinkAppService.LastAppLink))
+        //     {
+        //         AppServices_AppLinkReceived(null, new() { Data = deeplinkAppService.LastAppLink });
+        //     }
+        // }
+    
         base.OnInitialized();
     }
 
-    private void AppServices_AppLinkReceived(object? sender, AppLinkReceivedEventArgs e)
+    protected override Task OnAfterRenderAsync(bool firstRender)
     {
-        var url = e.Data;
-        deeplinkAppService.ResetLastAppLink();
-        NavigationManager.NavigateTo(e.Data, forceLoad: true);
+        System.Diagnostics.Trace.WriteLine($"On after render");
+        var requestedUrl = Microsoft.Maui.Storage.Preferences.Get("requestedUrl", null);
+        System.Diagnostics.Trace.WriteLine($"On after render: {requestedUrl}");
+        if (!string.IsNullOrEmpty(requestedUrl))
+        {
+            Preferences.Set("requestedUrl", null);
+            NavigationManager.NavigateTo(requestedUrl);
+            return Task.CompletedTask;
+        }
+        else
+        {
+            return base.OnAfterRenderAsync(firstRender);
+        }
     }
 
-    void IDisposable.Dispose()
-    {
-        deeplinkAppService.AppLinkReceived -= AppServices_AppLinkReceived;
-        DeeplinkAppService.IsRegistered = false;
-    }
+    // private void AppServices_AppLinkReceived(object? sender, AppLinkReceivedEventArgs e)
+    // {
+    //     var url = e.Data;
+    //     deeplinkAppService.ResetLastAppLink();
+    //     NavigationManager.NavigateTo(e.Data, forceLoad: true);
+    // }
+
+    // void IDisposable.Dispose()
+    // {
+    //     deeplinkAppService.AppLinkReceived -= AppServices_AppLinkReceived;
+    //     DeeplinkAppService.IsRegistered = false;
+    // }
 }
